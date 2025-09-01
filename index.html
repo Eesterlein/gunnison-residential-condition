@@ -164,7 +164,7 @@
   });
 
   /* ---------- load CSV ---------- */
-  Papa.parse("RI_v2 - Sheet1.csv", {
+  Papa.parse("RI_v2_sanitized.csv", {
     download: true, header: true, dynamicTyping: true,
     complete: function(results){
       const rows = results.data.filter(r => r && r["EXT CONDITION"]);
