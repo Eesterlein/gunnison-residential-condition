@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Residential Improvements – Cyberpunk Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --bg1:#0f2027; --bg2:#203a43; --bg3:#2c5364;
+      --panel:#111; --ink:#e0e0e0; --muted:#a7a7a7;
+      --neon-cyan:#00ffff; --neon-mag:#ff00ff; --neon-amber:#ff9900; --neon-green:#39ff14;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; padding:28px;
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2), var(--bg3));
+      color:var(--ink); font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    h1{
+      margin:0 0 6px; text-align:center; font-size:32px;
+      background: linear-gradient(90deg, var(--neon-mag), var(--neon-cyan), var(--neon-amber));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      text-shadow:0 0 10px rgba(255,0,255,.7),0 0 20px rgba(0,255,255,.6);
+    }
+    .sub{ text-align:center; color:#cfd8dc; margin-bottom:20px; }
+
+    /* KPIs */
+    .kpis{display:grid; gap:16px; grid-template-columns:repeat(5,1fr); margin-bottom:18px; max-width:1400px; margin-left:auto; margin-right:auto;}
+    .card{background:var(--panel); border:1px solid var(--neon-cyan); border-radius:12px; padding:14px; text-align:center; box-shadow:0 0 12px rgba(0,255,255,.35);}
+    .kpi h3{margin:0 0 6px; font-size:13px; color:var(--muted); font-weight:600}
+    .kpi .val{font-size:22px; font-weight:700; color:var(--neon-cyan); text-shadow:0 0 6px var(--neon-cyan)}
+
+    /* Tabs */
+    .tabs{max-width:1400px; margin:12px auto 0;}
+    .tab-bar{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:14px;}
+    .tab-btn{
+      background:#0b1220; color:#bfefff; border:1px solid #00bcd4; border-radius:999px;
+      padding:8px 14px; cursor:pointer; font-weight:600; letter-spacing:.2px;
+      box-shadow:0 0 10px rgba(0,188,212,.35);
+    }
+    .tab-btn.active{
+      background:linear-gradient(90deg, rgba(255,0,255,.25), rgba(0,255,255,.25));
+      border-color:#ff00ff; color:#fff; box-shadow:0 0 14px rgba(255,0,255,.45);
+    }
+    .tab-panel{ display:none; }
+    .tab-panel.active{ display:block; }
+
+    /* Charts */
+    .section{max-width:1400px; margin:0 auto 30px;}
+    .section h2{margin:6px 0 12px; text-align:center; font-size:20px; color:#ff00ff; text-shadow:0 0 6px #ff00ff}
+    .chart{height:500px; padding:10px; border-radius:12px; background:var(--panel); box-shadow:0 0 12px rgba(255,153,0,.45);}
+    .chart.tall{height:650px;}
+    @media (max-width:1100px){ .kpis{grid-template-columns:1fr 1fr} }
+  </style>
+</head>
+<body>
+  <h1>Current Condition on Every Residential Improvement in Gunnison County</h1>
+  <div class="sub">Your Data Request Visualized</div>
+
+  <!-- KPIs -->
+  <section class="kpis">
+    <div class="card kpi"><h3>Total Properties</h3><div class="val" id="kpi-total">—</div></div>
+    <div class="card kpi"><h3>Median Value</h3><div class="val" id="kpi-medval">—</div></div>
+    <div class="card kpi"><h3>Average Sq Ft</h3><div class="val" id="kpi-avgsf">—</div></div>
+    <div class="card kpi"><h3>Most Common Condition</h3><div class="val" id="kpi-topcond">—</div></div>
+    <div class="card kpi"><h3>Median Year Built</h3><div class="val" id="kpi-medyr">—</div></div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="tab-condition">Condition</button>
+      <button class="tab-btn" data-tab="tab-quality">Quality</button>
+      <button class="tab-btn" data-tab="tab-improvements">Improvements</button>
+      <button class="tab-btn" data-tab="tab-size">Size & Value</button>
+      <button class="tab-btn" data-tab="tab-econ">Economic Areas</button>
+    </div>
+
+    <!-- CONDITION -->
+    <div id="tab-condition" class="tab-panel active">
+      <div class="section">
+        <h2>Condition Distribution</h2>
+        <div id="condPie" class="chart"></div>
+      </div>
+      <div class="section">
+        <h2>Value Distribution by Condition (Excluding Minimum & Salvage)</h2>
+        <div id="boxValueCond" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- QUALITY -->
+    <div id="tab-quality" class="tab-panel">
+      <div class="section">
+        <h2>Quality Distribution</h2>
+        <div id="qualityBar" class="chart"></div>
+      </div>
+      <div class="section">
+        <h2>Bedrooms by Condition (1–5 Only; Excluding Minimum & Salvage)</h2>
+        <div id="bedsByCond" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- IMPROVEMENTS -->
+    <div id="tab-improvements" class="tab-panel">
+      <div class="section">
+        <h2>Top Improvement Types</h2>
+        <div id="impTree" class="chart tall"></div>
+      </div>
+    </div>
+
+    <!-- SIZE & VALUE -->
+    <div id="tab-size" class="tab-panel">
+      <div class="section">
+        <h2>Average Square Footage & Value by Condition (Excluding Minimum & Salvage)</h2>
+        <div id="lineSizeValue" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- ECON AREAS -->
+    <div id="tab-econ" class="tab-panel">
+      <div class="section">
+        <h2>Condition by Economic Area (Shown Only If Present)</h2>
+        <div id="econCond" class="chart tall"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ---------- helpers ---------- */
+  const median=a=>{const s=a.filter(x=>Number.isFinite(x)).sort((x,y)=>x-y); const m=Math.floor(s.length/2); return s.length? (s.length%2?s[m]:(s[m-1]+s[m])/2):null;}
+  const avg=a=>{const s=a.filter(x=>Number.isFinite(x)); return s.length? s.reduce((x,y)=>x+y,0)/s.length : null;}
+  const uniq = arr => Array.from(new Set(arr));
+  const orderBy = (arr, order) => arr.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  const cleanEA = code => {
+    const s = (code ?? "").toString().trim();
+    const stripped = s.replace(/^0+/, "");
+    return stripped || null;
+  };
+
+  // Expanded neon condition palette
+  const condOrderFull=["Excellent","Very Good","Good","Average","Fair","Below Average","Poor","Minimum","Salvage"];
+  const condColors={
+    "Excellent":"#ff00ff","Very Good":"#00ffff","Good":"#39ff14","Average":"#faff00",
+    "Fair":"#ff9900","Below Average":"#ff3131","Poor":"#ff007f","Minimum":"#ff6ec7","Salvage":"#a020f0"
+  };
+
+  // Keep charts centered / not squished when switching tabs
+  const resizeVisibleCharts = () => {
+    document.querySelectorAll(".tab-panel.active .chart").forEach(div => {
+      try { Plotly.Plots.resize(div); } catch(e) {}
+    });
+  };
+  window.addEventListener("resize", resizeVisibleCharts);
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+      setTimeout(resizeVisibleCharts, 120);
+    });
+  });
+
+  /* ---------- load CSV ---------- */
+  Papa.parse("RI_v2 - Sheet1.csv", {
+    download: true, header: true, dynamicTyping: true,
+    complete: function(results){
+      const rows = results.data.filter(r => r && r["EXT CONDITION"]);
+
+      /* KPIs */
+      document.getElementById("kpi-total").textContent = rows.length.toLocaleString();
+      document.getElementById("kpi-medval").textContent = "$" + (median(rows.map(r=>r["MaxOfCURR ACT"]))||0).toLocaleString();
+      document.getElementById("kpi-avgsf").textContent = (Math.round(avg(rows.map(r=>r.IMPNETSF||0)))||0).toLocaleString();
+      const condCounts = {};
+      rows.forEach(r => condCounts[r["EXT CONDITION"]] = (condCounts[r["EXT CONDITION"]]||0)+1);
+      const topCond = Object.entries(condCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || "—";
+      document.getElementById("kpi-topcond").textContent = topCond;
+      document.getElementById("kpi-medyr").textContent = median(rows.map(r=>r.AYB)) || "—";
+
+      /* CONDITION tab */
+      (function(){
+        const labels = orderBy(uniq(Object.keys(condCounts)), condOrderFull);
+        const values = labels.map(l=>condCounts[l]||0);
+        const colors = labels.map(l=>condColors[l] || "#ccc");
+        Plotly.newPlot("condPie", [{
+          type:"pie", labels, values,
+          marker:{colors:colors}, textinfo:"label+percent",
+          hovertemplate:"%{label}: %{value} homes<extra></extra>"
+        }], {
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          margin:{l:20,r:20,t:20,b:20}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      (function(){
+        const excludeSet = new Set(["Minimum","Salvage"]);
+        const conds = orderBy(uniq(rows.map(r=>r["EXT CONDITION"]).filter(c=>!excludeSet.has(c))), condOrderFull);
+        const traces = conds.map(c => ({
+          type:"box", name:c,
+          y: rows.filter(r=>r["EXT CONDITION"]===c).map(r=>r["MaxOfCURR ACT"]).filter(Number.isFinite),
+          marker:{color: condColors[c] || "#fff"}, boxmean:true,
+          hovertemplate:`${c}<br>Value: %{y:$,.0f}<extra></extra>`
+        }));
+        Plotly.newPlot("boxValueCond", traces, {
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          yaxis:{title:"Value", tickprefix:"$"}, margin:{l:60,r:20,t:10,b:40}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      /* QUALITY tab */
+      (function(){
+        const qCounts = {};
+        rows.forEach(r => { if(r.IMPQUALITY) qCounts[r.IMPQUALITY] = (qCounts[r.IMPQUALITY]||0)+1; });
+        const qLabels = Object.keys(qCounts);
+        const qValues = qLabels.map(k=>qCounts[k]);
+        Plotly.newPlot("qualityBar", [{
+          type:"bar", x:qLabels, y:qValues,
+          marker:{color:"#00ffff"}, hovertemplate:"%{x}: %{y}<extra></extra>"
+        }], {
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          yaxis:{title:"Count", rangemode:"tozero"}, margin:{l:50,r:20,t:10,b:80}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      (function(){
+        const excludeSet = new Set(["Minimum","Salvage"]);
+        const filtered = rows.filter(r => !excludeSet.has(r["EXT CONDITION"]));
+        const conds = orderBy(uniq(filtered.map(r=>r["EXT CONDITION"])), condOrderFull);
+        const bedCats = [1,2,3,4,5];
+        const traces = bedCats.map(b => ({
+          type:"bar", name:`${b} BR`,
+          x: conds,
+          y: conds.map(c => filtered.filter(r=>r["EXT CONDITION"]===c && r.BEDROOMCOUNT===b).length)
+        }));
+        Plotly.newPlot("bedsByCond", traces, {
+          barmode:"group",
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          yaxis:{title:"Homes", rangemode:"tozero"}, margin:{l:50,r:20,t:10,b:40}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      /* IMPROVEMENTS tab */
+      (function(){
+        const byType = {};
+        rows.forEach(r => { if(r.IMPDESCRIPTION) byType[r.IMPDESCRIPTION]=(byType[r.IMPDESCRIPTION]||0)+1; });
+        const labels = Object.keys(byType);
+        const values = labels.map(l=>byType[l]);
+        Plotly.newPlot("impTree", [{
+          type:"treemap", labels, parents:labels.map(_=>""), values,
+          textinfo:"label+value"
+        }], {
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          margin:{l:10,r:10,t:10,b:10}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      /* SIZE & VALUE tab */
+      (function(){
+        const excludeSet = new Set(["Minimum","Salvage"]);
+        const filtered = rows.filter(r => !excludeSet.has(r["EXT CONDITION"]));
+        const conds = orderBy(uniq(filtered.map(r=>r["EXT CONDITION"])), condOrderFull);
+        const sqftAvg = conds.map(c => avg(filtered.filter(r=>r["EXT CONDITION"]===c).map(r=>r.IMPNETSF||0)) || 0);
+        const valAvg  = conds.map(c => avg(filtered.filter(r=>r["EXT CONDITION"]===c).map(r=>r["MaxOfCURR ACT"]||0)) || 0);
+        Plotly.newPlot("lineSizeValue", [
+          {type:"scatter", mode:"lines+markers", x:conds, y:sqftAvg, name:"Avg Sq Ft", line:{color:"#00ffff"},
+           hovertemplate:"%{x}<br>Avg Sq Ft: %{y:.0f}<extra></extra>"},
+          {type:"scatter", mode:"lines+markers", x:conds, y:valAvg, name:"Avg Value", yaxis:"y2", line:{color:"#ff00ff"},
+           hovertemplate:"%{x}<br>Avg Value: %{y:$,.0f}<extra></extra>"}
+        ], {
+          yaxis:{title:"Sq Ft"},
+          yaxis2:{title:"Value", overlaying:"y", side:"right"},
+          paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+          margin:{l:60,r:60,t:10,b:40}
+        }, {displayModeBar:false, responsive:true});
+      })();
+
+      /* ECON AREAS tab
+         — derive x-axis purely from real codes present in the file —
+      ** ECON AREAS tab */
+(function(){
+  // Normalize codes -> string, trimmed, no leading zeros. Drop blanks.
+  const eaRows = rows.map(r => ({ ...r, ECONOMICAREACODE: cleanEA(r.ECONOMICAREACODE) }))
+                     .filter(r => !!r.ECONOMICAREACODE);
+
+  // Unique existing codes sorted numerically (but keep as strings for x labels)
+  const eaList = uniq(eaRows.map(r => r.ECONOMICAREACODE))
+                  .sort((a,b)=>Number(a)-Number(b));
+
+  // Conditions (show all that occur in those rows)
+  const conds = orderBy(uniq(eaRows.map(r=>r["EXT CONDITION"])), condOrderFull);
+
+  // Build grouped bar traces
+  const traces = conds.map(c => ({
+    type:"bar",
+    name:c,
+    x: eaList,
+    y: eaList.map(e =>
+      eaRows.filter(r => r.ECONOMICAREACODE===e && r["EXT CONDITION"]===c).length
+    ),
+    marker:{color: condColors[c] || "#ccc"}
+  }));
+
+  Plotly.newPlot("econCond", traces, {
+    barmode:"group",
+    paper_bgcolor:"#111", plot_bgcolor:"#111", font:{color:"#fff"},
+    yaxis:{title:"Homes", rangemode:"tozero"},
+    xaxis:{
+      title:"Economic Area",
+      type:"category",           // <<— force categorical axis
+      categoryorder:"array",
+      categoryarray: eaList      // <<— only your real codes
+    },
+    margin:{l:60,r:20,t:10,b:60}
+  }, {displayModeBar:false, responsive:true});
+})();
+
+      // First paint sizing fix
+      setTimeout(resizeVisibleCharts, 150);
+    }
+  });
+</script>
+</body>
+</html>
