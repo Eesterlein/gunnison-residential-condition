@@ -45,6 +45,36 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
 
 ---
 
+##  Data Transparency  
+
+This dataset originates from the **Gunnison County Assessor’s Office** database.  
+It was prepared in response to a formal internal request from leadership for *“a list of the current condition on every residential improvement in the county, including any additional fields that could provide context for analysis.”*  
+
+While the initial request focused on a simple tabular list, I extended the work by curating fields that would be most relevant for visualization and deeper analysis. These include:  
+
+- **EXT CONDITION** – Exterior condition rating of the improvement (Excellent → Salvage).  
+- **IMPQUALITY** – Construction quality rating.  
+- **IMPDESCRIPTION** – Type of improvement (e.g., Single-Family Dwelling, Duplex, Cabin).  
+- **IMPNETSF** – Net square footage.  
+- **BEDROOMCOUNT** – Number of bedrooms.  
+- **AYB** – Actual year built.  
+- **MaxOfCURR ACT** – Current actual market value.  
+- **ECONOMICAREACODE** – Assessor-defined economic area code for neighborhood grouping.  
+
+### Primary Improvements Only  
+This dataset is limited to **primary residential improvements**.  
+In assessor terminology, the *primary improvement* is the **main dwelling or structure on a property account**, as opposed to secondary structures (garages, sheds, ADUs, barns, etc.). Restricting to primary improvements avoids duplication, ensures consistency across parcels, and provides the clearest picture of the housing stock as experienced by occupants.  
+
+### Limitations  
+- **Not comprehensive of all structures** – Outbuildings and secondary units are excluded.  
+- **Condition and quality are assessor-derived** – These ratings reflect professional judgment within standard guidelines but may not perfectly align with buyer perceptions.  
+- **Point-in-time snapshot** – Values and conditions reflect the moment the dataset was pulled and will evolve with future assessments.  
+- **Economic area codes are generalized** – They group neighborhoods into broader economic areas, which may mask micro-level variation in housing markets.  
+
+By acknowledging these parameters, the dashboard should be understood as an **analytical tool** that provides meaningful insight into the county’s housing stock, rather than as an exact valuation or real estate listing resource.  
+
+---
+
 ##  Dashboard Sections  
 
 ### Condition Analysis  
@@ -121,6 +151,24 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
 - Lower-condition housing is more common in **rural and older housing stock areas**.  
 
  **Reference Map**: [Gunnison County Economic Areas Map](https://www.gunnisoncounty.org/DocumentCenter/View/2101/Economic_Areas_Map?bidId=)  
+
+---
+
+## Contextual Storytelling: Affordability & Market Dynamics
+
+Gunnison County faces a pronounced **housing affordability crisis**, driven by a shortage of units for low- and moderate-income households and local workers. The **median listing price** in Gunnison hovers around **$1.2 million**, while the **average home value** is approximately **$705,000**, both significantly higher than the U.S. median.  
+([Zillow](https://www.zillow.com/home-values/2313/gunnison-county-co/?utm_source=chatgpt.com))
+
+In contrast, the **national median home price** sits near **$462,000**, with a Zillow-estimated **average U.S. home value of about $368,600**.  
+([Forbes](https://www.forbes.com/advisor/mortgages/real-estate/median-home-prices-by-state/?utm_source=chatgpt.com), [Zillow](https://www.zillow.com/home-values/102001/united-states/?utm_source=chatgpt.com))
+
+This stark difference highlights how even **average-quality homes in Gunnison are exceptionally expensive**—a far cry from affordability.
+
+### What This Means
+
+- **Local housing doesn’t meet the needs of all residents**, particularly workers and families with moderate incomes.  
+- The **price premium** on average-condition homes underlines the lack of mid-market housing—whether rental or owner-occupied.  
+- To bridge this affordability gap, **public and nonprofit interventions are critically needed**—such as deed-restricted housing, subsidized workforce units, or incentives for lower-cost developments.
 
 ---
 
