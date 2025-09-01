@@ -20,7 +20,7 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
   - **Responsive Design** – charts resize automatically when switching tabs or resizing the window.  
 
 ###  Data Handling  
-- Loads data directly from `RI_v2 - Sheet1.csv` with **PapaParse**.  
+- Loads data directly from `RI_v2_sanitized.csv` with **PapaParse**.  
 - Helper functions calculate **median, average, unique values**.  
 - Economic Area codes are **cleaned** (trimmed, leading zeros removed, blanks dropped).  
 
