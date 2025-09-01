@@ -63,7 +63,8 @@ While the initial request focused on a simple tabular list, I extended the work 
 
 ### Primary Improvements Only  
 This dataset is limited to **primary residential improvements**.  
-In assessor terminology, the *primary improvement* is the **main dwelling or structure on a property account**, as opposed to secondary structures (garages, sheds, ADUs, barns, etc.). Restricting to primary improvements avoids duplication, ensures consistency across parcels, and provides the clearest picture of the housing stock as experienced by occupants.  
+In assessor terminology, the *primary improvement* is the **main dwelling or structure on a property account**, as opposed to secondary structures (garages, sheds, ADUs, barns, etc.). Restricting to primary improvements avoids duplication, ensures consistency across parcels, and provides the clearest picture of the housing stock as experienced by occupants. Names, account numbers, and property addresses have been redacted from this dataset to protect privacy. The remaining fields are sufficient for analysis and visualization without exposing sensitive information.
+
 
 ### Limitations  
 - **Not comprehensive of all structures** – Outbuildings and secondary units are excluded.  
