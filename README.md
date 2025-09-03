@@ -39,7 +39,6 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
 
 - **Economic Areas Tab**  
   - Grouped bar chart of condition by **Economic Area (1, 2, 6, 8)**.
-  - 
 ---
 
 ##  Data Transparency  
