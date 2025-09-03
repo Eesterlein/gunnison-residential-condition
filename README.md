@@ -17,12 +17,10 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
 - Dashboard structure:  
   - **KPI Cards** – total properties, median value, average square footage, most common condition, median year built.  
   - **Tabbed Navigation** – Condition, Quality, Improvements, Size & Value, Economic Areas.  
-  - **Responsive Design** – charts resize automatically when switching tabs or resizing the window.  
 
 ###  Data Handling  
 - Loads data directly from `RI_v2_sanitized.csv` with **PapaParse**.  
-- Helper functions calculate **median, average, unique values**.  
-- Economic Area codes are **cleaned** (trimmed, leading zeros removed, blanks dropped).  
+- Helper functions calculate **median, average, unique values**.   
 
 ###  Visualizations (Powered by Plotly.js)  
 - **Condition Tab**  
@@ -40,9 +38,8 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
   - Dual-axis line chart comparing average **square footage vs. market value** by condition.  
 
 - **Economic Areas Tab**  
-  - Grouped bar chart of condition by **Economic Area (1, 2, 6, 8 only)**.  
-  - Axis shows only real codes present in the dataset (phantom codes removed).  
-
+  - Grouped bar chart of condition by **Economic Area (1, 2, 6, 8)**.
+  - 
 ---
 
 ##  Data Transparency  
@@ -63,14 +60,12 @@ While the initial request focused on a simple tabular list, I extended the work 
 
 ### Primary Improvements Only  
 This dataset is limited to **primary residential improvements**.  
-In assessor terminology, the *primary improvement* is the **main dwelling or structure on a property account**, as opposed to secondary structures (garages, sheds, ADUs, barns, etc.). Restricting to primary improvements avoids duplication, ensures consistency across parcels, and provides the clearest picture of the housing stock as experienced by occupants. Names, account numbers, and property addresses have been redacted from this dataset to protect privacy. The remaining fields are sufficient for analysis and visualization without exposing sensitive information.
-
+In assessor terminology, the *primary improvement* is the **main dwelling or structure on a property account**, as opposed to secondary structures (garages, sheds, ADUs, barns, etc.). Restricting to primary improvements avoids duplication, ensures consistency across parcels, and provides the clearest picture of the housing stock as experienced by occupants. Names, account numbers, and property addresses have been redacted from this dataset to protect privacy. 
 
 ### Limitations  
 - **Not comprehensive of all structures** – Outbuildings and secondary units are excluded.  
 - **Condition and quality are assessor-derived** – These ratings reflect professional judgment within standard guidelines but may not perfectly align with buyer perceptions.  
-- **Point-in-time snapshot** – Values and conditions reflect the moment the dataset was pulled and will evolve with future assessments.  
-- **Economic area codes are generalized** – They group neighborhoods into broader economic areas, which may mask micro-level variation in housing markets.  
+- **Point-in-time snapshot** – Values and conditions reflect the moment the dataset was pulled and will evolve with future assessments.   
 
 By acknowledging these parameters, the dashboard should be understood as an **analytical tool** that provides meaningful insight into the county’s housing stock, rather than as an exact valuation or real estate listing resource.  
 
