@@ -210,8 +210,15 @@
         const qCounts = {};
         rows.forEach(r => { if(r.IMPQUALITY) qCounts[r.IMPQUALITY] = (qCounts[r.IMPQUALITY]||0)+1; });
         // Logical order
-        const qOrder = ["Low","Fair","Average","Good","Very Good","Excellent"];
-        const qLabels = qOrder.filter(q => qCounts[q]);
+        const qOrder = [
+  "Low","Low Plus",
+  "Fair","Fair Plus",
+  "Average","Average Plus",
+  "Good","Good Plus",
+  "Very Good","Very Good Plus",
+  "Excellent"
+];
+const qLabels = qOrder.filter(q => qCounts[q]);
         const qValues = qLabels.map(q => qCounts[q]);
         Plotly.newPlot("qualityBar", [{
           type:"bar", x:qLabels, y:qValues,
@@ -302,3 +309,4 @@
 </script>
 </body>
 </html>
+
