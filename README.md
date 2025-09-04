@@ -12,8 +12,7 @@ It visualizes assessor data on **residential improvements in Gunnison County**.
 
 ##  What the Code Does  
 
-###  Styling & Layout  
-- Neon cyberpunk-inspired theme using CSS gradients and variables.  
+###  Styling & Layout    
 - Dashboard structure:  
   - **KPI Cards** – total properties, median value, average square footage, most common condition, median year built.  
   - **Tabbed Navigation** – Condition, Quality, Improvements, Size & Value, Economic Areas.  
