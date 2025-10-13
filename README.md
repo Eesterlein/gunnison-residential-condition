@@ -165,6 +165,33 @@ This stark difference highlights how even **average-quality homes in Gunnison ar
 - To bridge this affordability gap, **public and nonprofit interventions are critically needed**—such as deed-restricted housing, subsidized workforce units, or incentives for lower-cost developments.
 
 ---
+## Companion Dashboard: *All Residential Improvements in Gunnison County*
+
+To complement the *Primary Residential Improvements Dashboard*, a second interactive dashboard was developed to visualize **every recorded improvement in the Gunnison Valley**, including **secondary structures** such as garages, barns, sheds, ADUs, and other non-primary buildings.
+
+### Purpose
+While the first dashboard isolates only **primary dwellings**, this companion view provides a **complete picture of the built environment** across Economic Areas 1, 2, 6, and 8. It enables broader insights into **total improvement value**, **distribution of structure conditions**, and **regional concentration of improvements**.
+
+### Key Metrics & Visualizations
+- **Total Improvements:** Displays every improvement record countywide, offering a fuller count of structures than the primary dashboard.  
+- **Total & Average Value:** Aggregates all assessed improvement values to show the overall economic weight of the county’s built assets.  
+- **Condition Breakdown:** Pie chart of condition ratings across all structures — revealing how “Average” remains the dominant rating even when outbuildings and secondary units are included.  
+- **Economic Area Value Distribution:** Bar charts highlight which economic areas contain the greatest cumulative improvement value — with **Area 6 (Upper East River Valley & Crested Butte)** showing the highest overall valuation.  
+- **Number of Improvements by Area:** Indicates structural density and distribution of improvements across the county.  
+- **Average Value by Condition:** A line chart illustrating how condition correlates with mean improvement value, showing strong clustering among “Average” and “Good” conditions.
+
+### Insights
+- Including all improvements significantly expands the total value represented — over **$9.4 billion** in total improvement value countywide.  
+- “Average” condition remains the majority rating, reflecting consistent assessor standards across both primary and secondary structures.  
+- Economic Areas **1 and 6** again emerge as the most active and highest-valued regions.  
+- The addition of outbuildings and accessory structures helps quantify the full scope of the county’s built landscape, not just homes.
+
+### Access
+You can toggle between dashboards using the navigation buttons at the top of each page:
+- [View Primary Residential Dashboard](index.html)  
+- [View All Residential Improvements Dashboard](all_improvements.html)
+
+---------------------------------------------------------------------------------------------------
 
 ##  How to Use  
 
