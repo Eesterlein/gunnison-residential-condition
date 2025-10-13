@@ -187,9 +187,7 @@ While the first dashboard isolates only **primary dwellings**, this companion vi
 - The addition of outbuildings and accessory structures helps quantify the full scope of the county’s built landscape, not just homes.
 
 ### Access
-You can toggle between dashboards using the navigation buttons at the top of each page:
-- [View Primary Residential Dashboard](index.html)  
-- [View All Residential Improvements Dashboard](all_improvements.html)
+You can toggle between dashboards using the navigation buttons at the top of each page
 
 ---------------------------------------------------------------------------------------------------
 
