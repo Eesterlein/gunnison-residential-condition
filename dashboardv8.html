@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gunnison Valley - All Property Improvements Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      text-align: center;
+      padding: 1.2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .summary {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin: 2rem 0 1rem 0;
+    }
+    .summary-card {
+      background-color: #003366;
+      color: white;
+      border-radius: 10px;
+      padding: 1rem 2rem;
+      text-align: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      min-width: 180px;
+    }
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    select {
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 1rem;
+    }
+    .chart {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 1000px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Condition of All Residential Improvements in Gunnison County</h2>
+    <p style="font-size: 1rem; color: #cce5ff; margin-top: 0.5rem;">
+     A comprehensive snapshot of exterior condition ratings and assessed improvement values across Economic Areas 1, 2, 6, and 8.
+    </p>
+     <!-- 🔗 Back link to main Residential Dashboard -->
+  <p style="margin-top:10px;">
+    <a href="Dashboardv5.html" style="color:#cce5ff; text-decoration:underline;">
+      ← Back to Residential Dashboard
+    </a>
+  </p>
+</header>
+  <div class="summary" id="summary">
+    <div class="summary-card" id="card-total">Loading...</div>
+    <div class="summary-card" id="card-value">Loading...</div>
+    <div class="summary-card" id="card-avg">Loading...</div>
+    <div class="summary-card" id="card-areas">Loading...</div>
+  </div>
+
+  <div class="filters">
+    <select id="economicAreaSelect">
+      <option value="All">All Economic Areas</option>
+    </select>
+    <select id="conditionSelect">
+      <option value="All">All Conditions</option>
+    </select>
+  </div>
+
+  <div id="chartConditionPie" class="chart"></div>
+  <div id="chartAreaValue" class="chart"></div>
+  <div id="chartAreaCount" class="chart"></div>
+  <div id="chartAvgCondition" class="chart"></div>
+
+  <script>
+    async function loadData() {
+      const response = await fetch("cleaned_M_RI.csv");
+      const text = await response.text();
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      const headers = rows[0].map(h => h.trim().toLowerCase());
+      const data = rows.slice(1).map(r => {
+        let obj = {};
+        headers.forEach((h, i) => obj[h] = r[i]);
+        obj.impabstractvalue = parseFloat(obj.impabstractvalue || 0);
+        return obj;
+      }).filter(d => ["1","2","6","8"].includes(d.economicareacode)); // only valid areas
+      buildDashboard(data);
+    }
+
+    function buildDashboard(data) {
+      const eaSelect = document.getElementById("economicAreaSelect");
+      const condSelect = document.getElementById("conditionSelect");
+
+      const economicAreas = [...new Set(data.map(d => d.economicareacode))].sort();
+      const conditions = [...new Set(data.map(d => d.ext_condition))].sort();
+
+      economicAreas.forEach(a => {
+        const opt = document.createElement("option");
+        opt.value = a; opt.text = `Economic Area ${a}`;
+        eaSelect.appendChild(opt);
+      });
+
+      conditions.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c; opt.text = c;
+        condSelect.appendChild(opt);
+      });
+
+      function filterData() {
+        const ea = eaSelect.value;
+        const cond = condSelect.value;
+        return data.filter(d =>
+          (ea === "All" || d.economicareacode === ea) &&
+          (cond === "All" || d.ext_condition === cond)
+        );
+      }
+
+      function updateDashboard() {
+        const filtered = filterData();
+        const totalValue = filtered.reduce((a, b) => a + (b.impabstractvalue || 0), 0);
+        const totalCount = filtered.length;
+        const avgValue = totalCount ? totalValue / totalCount : 0;
+        const uniqueAreas = new Set(filtered.map(d => d.economicareacode)).size;
+
+        document.getElementById("card-total").innerHTML = `<h3>${totalCount.toLocaleString()}</h3><p>Total Improvements</p>`;
+        document.getElementById("card-value").innerHTML = `<h3>$${totalValue.toLocaleString(undefined, {maximumFractionDigits:0})}</h3><p>Total Value</p>`;
+        document.getElementById("card-avg").innerHTML = `<h3>$${avgValue.toLocaleString(undefined, {maximumFractionDigits:0})}</h3><p>Average Value</p>`;
+        document.getElementById("card-areas").innerHTML = `<h3>${uniqueAreas}</h3><p>Economic Areas</p>`;
+
+        // 1️⃣ Pie chart: Share of total value by condition
+        const byCondPie = {};
+        filtered.forEach(d => {
+          const c = d.ext_condition || "Unknown";
+          byCondPie[c] = (byCondPie[c] || 0) + d.impabstractvalue;
+        });
+        Plotly.newPlot("chartConditionPie", [{
+          labels: Object.keys(byCondPie),
+          values: Object.values(byCondPie),
+          type: "pie",
+          marker: { colors: ["#003366", "#3a7d44", "#557a95", "#999999", "#cce5cc"] }
+        }], { 
+          title: "Share of Total Improvement Value by Condition",
+          paper_bgcolor: "#fff",
+          plot_bgcolor: "#fff"
+        });
+
+        // 2️⃣ Bar chart: Total Value by Economic Area
+        const byAreaVal = {};
+        filtered.forEach(d => {
+          const a = d.economicareacode || "Unknown";
+          byAreaVal[a] = (byAreaVal[a] || 0) + d.impabstractvalue;
+        });
+        const areaLabels = Object.keys(byAreaVal).map(a => `Economic Area ${a}`);
+        Plotly.newPlot("chartAreaValue", [{
+          x: areaLabels,
+          y: Object.values(byAreaVal),
+          type: "bar",
+          marker: { color: "#003366" }
+        }], { 
+          title: "Total Improvement Value by Economic Area",
+          paper_bgcolor: "#fff",
+          plot_bgcolor: "#fff",
+          margin: { l: 100, r: 30, t: 60, b: 80 },
+          xaxis: { tickangle: -30 }
+        });
+
+        // 3️⃣ Horizontal bar: Count of Improvements by Economic Area
+        const byAreaCount = {};
+        filtered.forEach(d => {
+          const a = d.economicareacode || "Unknown";
+          byAreaCount[a] = (byAreaCount[a] || 0) + 1;
+        });
+        const countLabels = Object.keys(byAreaCount).map(a => `Economic Area ${a}`);
+        Plotly.newPlot("chartAreaCount", [{
+          x: Object.values(byAreaCount),
+          y: countLabels,
+          type: "bar",
+          orientation: "h",
+          marker: { color: "#3a7d44" }
+        }], { 
+          title: "Number of Improvements by Economic Area",
+          margin: { l: 180, r: 50, t: 60, b: 60 }, // ⬅️ ensures labels aren't cut off
+          paper_bgcolor: "#fff",
+          plot_bgcolor: "#fff",
+          font: { color: "#222", size: 14 }
+        });
+
+        // 4️⃣ Line chart: Average Improvement Value by Condition
+        const condGroups = {};
+        filtered.forEach(d => {
+          const c = d.ext_condition || "Unknown";
+          if (!condGroups[c]) condGroups[c] = [];
+          condGroups[c].push(d.impabstractvalue);
+        });
+        const avgByCond = Object.keys(condGroups).map(c => ({
+          condition: c,
+          avg: condGroups[c].reduce((a, b) => a + b, 0) / condGroups[c].length
+        }));
+        Plotly.newPlot("chartAvgCondition", [{
+          x: avgByCond.map(d => d.condition),
+          y: avgByCond.map(d => d.avg),
+          type: "scatter",
+          mode: "lines+markers",
+          line: { color: "#003366", width: 3 },
+          marker: { size: 8, color: "#3a7d44" }
+        }], { 
+          title: "Average Improvement Value by Condition",
+          paper_bgcolor: "#fff",
+          plot_bgcolor: "#fff"
+        });
+      }
+
+      eaSelect.addEventListener("change", updateDashboard);
+      condSelect.addEventListener("change", updateDashboard);
+      updateDashboard();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
