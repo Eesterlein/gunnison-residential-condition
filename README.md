@@ -1,4 +1,3 @@
-# gunnison-residential-condition
 # Residential Improvements Dashboard  
 
  **Live Dashboard**: [View Here](https://eesterlein.github.io/gunnison-residential-condition/)  
@@ -9,6 +8,8 @@ This project is an interactive data dashboard built with **HTML, CSS, JavaScript
 It visualizes assessor data on **residential improvements in Gunnison County**.  
 
 ---
+
+> **Independent research project.** This project is built from publicly available Gunnison County, Colorado assessor data downloads and GIS parcel data. It is not an official product of the Gunnison County Assessor's Office or Gunnison County, is not a system of record, and may contain errors or out-of-date information. Always verify against official county records.
 
 ##  What the Code Does  
 
